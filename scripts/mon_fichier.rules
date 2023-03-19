@@ -1,0 +1,48 @@
+# Rule for SYN Flood Attack
+alert tcp any any -> 192.168.33.10 any (flags: S; msg:"SYN Flood Attack"; flow: stateless; threshold: type both, track by_src, count 500, seconds 10; sid:1000001; rev:1;)
+
+# Rule for RST Flood Attack
+alert tcp any any -> 192.168.33.10 any (flags: R; msg:"RST Flood Attack"; flow: stateless; threshold: type both, track by_src, count 500, seconds 10; sid:1000002; rev:1;)
+
+# Rule for ICMP Flood Attack
+alert icmp any any -> 192.168.33.10 any (msg:"ICMP Flood Attack"; threshold: type both, track by_src, count 500, seconds 10; sid:1000003; rev:1;)
+
+# Rule for Port Scanning Attacks
+alert tcp any any -> 192.168.33.10 1:1024 (flags:S; msg:"Nmap port scanning detected"; detection_filter:track by_src, count 5, seconds 10; sid:1000004; rev:1;)
+
+# Rule for Directory Scanning Attacks
+alert tcp any any -> 192.168.33.10 any (msg:"Directory Scanning Detected"; flow:to_server,established; content:"GET"; http_method; content:"/"; http_uri; pcre:"/\/\w{5,}/Ui"; sid:1000005; rev:1;)
+
+# Rule for SQL Injection Attacks
+alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"SQL Injection Attack Detected"; flow:to_server,established; content:"/"; nocase; http_uri; content:"'"; nocase; http_uri; content:" or "; nocase; http_uri; sid:1000006; rev:1;)
+
+# Rule for XSS Attacks
+alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"XSS Attack Detected"; flow:to_server,established; content:"<script>"; nocase; http_client_body; sid:1000007; rev:1;)
+
+# Rule for LDAP Injection Attacks
+alert tcp $EXTERNAL_NET any -> $LDAP_SERVERS $LDAP_PORTS (msg:"LDAP Injection Attack Detected"; flow:to_server,established; content:"("; content:"="; content:")"; sid:1000008; rev:1;)
+
+# Rule for Buffer Overflow Attacks
+alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"Buffer Overflow Attack Detected"; flow:to_server,established; content:"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+# Détection de scans de ports UDP
+alert udp any any -> 192.168.33.10 any (msg:"UDP port scan detected"; dsize:0; flags:S; threshold: type both, track by_src, count 5, seconds 10; sid:100001; rev:1;)
+
+# Détection de scans de ports TCP
+alert tcp any any -> 192.168.33.10 any (msg:"TCP port scan detected"; flags:S; dsize:0; threshold: type both, track by_src, count 5, seconds 10; sid:100002; rev:1;)
+
+
+# Détection de la présence d'un rootkit
+alert tcp any any -> any any (msg:"Rootkit detected"; dsize:100; content:"/dev/dev"; sid:100003; rev:1;)
+
+
+# Détection de l'utilisation d'un shell inversé
+alert tcp any any -> 192.168.33.10 any (msg:"Possible reverse shell detected"; content:"/bin/sh"; sid:100004; rev:1;)
+
+
+# Détection d'une attaque brute-force SSH
+alert tcp any any -> 192.168.33.10 22 (msg:"SSH brute force attack"; flow:to_server,established; content:"SSH-"; content:"failed"; within:10; reference:url, wiki.quadrantsec.com/bin/view/Main/5000118; threshold: type both, track by_src, count 5, seconds 60; sid:100005; rev:1;)
+
+
+# Détection d'une attaque brute-force FTP
+alert tcp any any -> 192.168.33.10 21 (msg:"FTP brute force attack"; flow:to_server,established; content:"530"; reference:url, wiki.quadrantsec.com/bin/view/Main/5000119; threshold: type both, track by_src, count 5, seconds 60; sid:100006; rev:1;)
